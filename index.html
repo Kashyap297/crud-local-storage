@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crude Operation Using Local Storage</title>
+
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="assets/css/all.min.css">
+
+    <!-- bootstrap css -->
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+
+</head>
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    button {
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
+</style>
+
+<body onload="studentInfo()">
+    <div class="col-4">
+        <h1 class="text-center">CRUD using localStorage</h1>
+        <div class="card p-4">
+            <form action="" id="form" class="text-center">
+                <input type="number" id="uid" hidden>
+                <input type="text" id="name" class="w-75 mb-3" placeholder="Enter Your Name">
+                <input type="email" id="email" class="w-75 mb-3" placeholder="Enter Your Email"> <br>
+                <button id="add">Add</button>
+            </form>
+            <br>
+            <button id="clear" onclick="ClearAll()">Clear</button>
+        </div>
+        <div class="card p-3">
+            <table class="border text-center">
+                <thead>
+                    <tr>
+                        <td>Name</td>
+                        <td>Email</td>
+                        <td>Edit</td>
+                        <td>Delete</td>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+<script>
+
+    let isEdit = false;
+    let editId;
+
+    // studentInfo
+    function studentInfo() {
+        const student = JSON.parse(localStorage.getItem('student'))
+        if (student !== null) {
+
+            var html = ""
+            for (var i = 0; i < student.length; i++) {
+                html += `<tr>
+                            <td>${student[i].name}</td>
+                            <td>${student[i].email}</td>
+                            <td><span class="cover" onclick=editData(${i})><a href="javascript:void(0)"><i
+                                                    class="fa-regular fa-pen-to-square"></i></a></span></td>
+                            <td><span class="cover1" onclick=deleteData(${i})><a href="javascript:void(0)"><i
+                                                    class="fa-regular fa-trash-can"></i></a></span></td>
+                        </tr>`
+            }
+            document.getElementById('tbody').innerHTML = html
+        } else {
+            console.log('record Not Found')
+        }
+    }
+
+    // onclick AddEvenetListener
+    // ADD Data
+
+    const form = document.querySelector('#form')
+    form.addEventListener('submit', function (e) {
+        e.preventDefault()
+
+        const student = JSON.parse(localStorage.getItem('student'))
+        const name = document.querySelector('#name').value
+        const email = document.querySelector('#email').value
+        const studentData = {
+            name: name,
+            email: email
+        }
+
+        if (isEdit) {
+            const uid = document.getElementById('uid').value
+            const newList = student.map((std, index) => {
+                if (index == uid) {
+                    const updated = std = studentData
+                    return updated
+                }
+                return std
+            })
+            localStorage.setItem('student', JSON.stringify(newList))
+            document.getElementById('update').innerHTML = 'Add'
+            document.getElementById('update').setAttribute('id', 'add')
+            document.getElementById('name').value = ""
+            document.getElementById('email').value = ""
+
+            isEdit = false
+        } else {
+            if (student == null) {
+                const student = []
+                student.push(studentData)
+                localStorage.setItem('student', JSON.stringify(student))
+
+            } else {
+                student.push(studentData)
+                localStorage.setItem('student', JSON.stringify(student))
+            }
+        }
+
+        studentInfo();
+    })
+
+    // Delete Data
+
+    function deleteData(id) {
+        const student = JSON.parse(localStorage.getItem('student'))
+        student.splice(id, 1)
+        console.log(student)
+        localStorage.setItem('student', JSON.stringify(student))
+        studentInfo()
+    }
+
+    // clear All Data
+
+    function ClearAll() {
+        localStorage.clear()
+        studentInfo()
+    }
+
+    // edit
+    const editData = (id) => {
+        const student = JSON.parse(localStorage.getItem('student'))
+
+        student.filter((std, index) => {
+            if (id == index) {
+                document.getElementById('name').value = std.name
+                document.getElementById('email').value = std.email
+                document.getElementById('uid').value = id
+                document.getElementById('add').innerHTML = 'Update'
+                document.getElementById('add').setAttribute('id', 'update')
+                isEdit = true
+            }
+        })
+    }
+</script>
+
+</html>
